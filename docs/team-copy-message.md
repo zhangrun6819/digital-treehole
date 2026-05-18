@@ -1,0 +1,37 @@
+# 发给三人小群的消息
+
+你可以把下面这段直接发到小群里。
+
+```text
+后端接口文档我这边重新整理了一版，字段和枚举都按英文固定下来了，中文主要只放在说明和示例用户内容里。
+
+大家先看这几份：
+
+前端同学：
+1. docs/frontend-handoff.md
+2. docs/api-contract.md
+3. docs/figma-design-brief.md
+
+AI 同学：
+1. docs/ai-rag-handoff.md
+2. docs/api-contract.md 里的 AI / RAG Integration Contract
+
+重点说明一下 RAG 对接：
+AI 服务不需要直接查后端数据库，也不用自己去捞 chat_message。
+后端每次调用 AI 时，会把当前输入、当前会话 ID、陪伴风格、最近 6 条历史消息一起发给 AI 服务。
+AI/RAG 服务只需要维护自己的知识库，然后按固定 JSON 返回 comfortText、reframeText、emotionTag、riskHint、followUpQuestion。
+
+现在前端可以继续按接口文档做页面。
+AI 同学可以先做一个 POST /ai/v1/treehole/chat 的 mock/RAG 服务，能接收请求并返回固定 JSON 就能先联调。
+
+本地/局域网联调地址：
+http://<后端电脑局域网IP>:8080
+
+Swagger：
+http://<后端电脑局域网IP>:8080/swagger-ui.html
+
+管理员账号：
+admin / admin123456
+```
+
+注意：如果你们不在同一个局域网，局域网地址对方可能打不开。那就先用 GitHub 发代码和文档，真正联调时再解决网络问题。

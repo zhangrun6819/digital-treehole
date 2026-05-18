@@ -1,0 +1,54 @@
+server:
+  port: ${TREEHOLE_SERVER_PORT:8080}
+
+spring:
+  application:
+    name: digital-treehole
+  datasource:
+    url: ${TREEHOLE_DB_URL:jdbc:mysql://localhost:3306/digital_treehole?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${TREEHOLE_DB_USERNAME:root}
+    password: ${TREEHOLE_DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 3MB
+      location: ${TREEHOLE_UPLOAD_TEMP:./storage/tmp}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+treehole:
+  auth:
+    jwt-secret: ${TREEHOLE_JWT_SECRET:change-this-demo-secret-change-this-demo-secret}
+    token-days: 7
+    refresh-threshold-hours: 24
+  ai:
+    timeout-seconds: 15
+    max-history-messages: 6
+    provider: ${TREEHOLE_AI_PROVIDER:mock}
+    api-key: ${TREEHOLE_AI_API_KEY:}
+    base-url: ${TREEHOLE_AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+    model: ${TREEHOLE_AI_MODEL:qwen-plus}
+  storage:
+    doodle-dir: ${TREEHOLE_DOODLE_DIR:./storage/doodles}
+    public-base-url: ${TREEHOLE_PUBLIC_BASE_URL:http://localhost:8080}
+  cleanup:
+    orphan-doodle-minutes: 30

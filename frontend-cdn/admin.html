@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>数字树洞 · 管理后台</title>
+  <link rel="stylesheet" href="./vendor/element-plus.css" />
+  <link rel="stylesheet" href="./css/app.css" />
+</head>
+<body>
+  <div id="admin">
+    <admin-login v-if="!loggedIn" @login="onLogin"></admin-login>
+    <el-container v-else class="layout">
+      <el-aside width="220px" class="aside">
+        <div class="brand">
+          <div class="brand-dot"></div>
+          <span>树洞管理台</span>
+        </div>
+        <el-menu :default-active="tab" @select="t => tab = t" class="aside-menu">
+          <el-menu-item index="risk">风险事件</el-menu-item>
+          <el-menu-item index="content">内容审核规则</el-menu-item>
+          <el-menu-item index="riskRule">危机预警规则</el-menu-item>
+          <el-menu-item index="support">援助资源</el-menu-item>
+        </el-menu>
+        <div class="aside-footer">
+          <p>{{ admin.displayName }}</p>
+          <el-button size="small" @click="logout">退出</el-button>
+          <el-link type="primary" :underline="false" href="./index.html" target="_blank">返回用户端</el-link>
+        </div>
+      </el-aside>
+      <el-main>
+        <admin-risk-events v-if="tab === 'risk'"></admin-risk-events>
+        <admin-content-rules v-else-if="tab === 'content'"></admin-content-rules>
+        <admin-risk-rules v-else-if="tab === 'riskRule'"></admin-risk-rules>
+        <admin-support-resources v-else-if="tab === 'support'"></admin-support-resources>
+      </el-main>
+    </el-container>
+  </div>
+
+  <script src="./vendor/vue.global.prod.min.js"></script>
+  <script src="./vendor/element-plus.full.min.js"></script>
+  <script src="./vendor/element-plus-zh-cn.min.js"></script>
+  <script src="./vendor/axios.min.js"></script>
+
+  <script src="./js/api.js"></script>
+  <script src="./js/admin/login.js"></script>
+  <script src="./js/admin/risk-events.js"></script>
+  <script src="./js/admin/content-rules.js"></script>
+  <script src="./js/admin/risk-rules.js"></script>
+  <script src="./js/admin/support-resources.js"></script>
+  <script src="./js/admin/app.js"></script>
+</body>
+</html>

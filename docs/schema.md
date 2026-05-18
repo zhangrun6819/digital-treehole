@@ -1,0 +1,91 @@
+# Database Schema
+
+数据库由 Flyway 管理，迁移脚本在 `src/main/resources/db/migration`。
+
+## visitor_profile
+
+匿名用户表。
+
+- `id`: 主键
+- `visitor_code`: 随机匿名 ID
+- `status`: 状态
+- `created_at`, `updated_at`: 时间戳
+
+## chat_session
+
+一次树洞对话。
+
+- `visitor_id`: 匿名用户
+- `companion_style`: 陪伴风格
+- `title`: 会话标题
+- `latest_emotion_tag`: 最近情绪
+- `latest_risk_level`: 最近风险等级
+
+## chat_message
+
+会话中的消息，既存用户输入，也存 AI 回复。
+
+- `session_id`, `visitor_id`: 归属关系
+- `role`: `USER` 或 `ASSISTANT`
+- `input_type`: `TEXT` 或 `DOODLE`
+- `content`: 文本内容或 AI 回复
+- `short_note`: 涂鸦短说明
+- `emotion_tag`: 最终情绪标签
+- `submitted_emotion_tag`: 用户提交的引导标签
+- `doodle_asset_id`: 涂鸦资源
+- `moderation_status`: `PASS`, `MARKED`, `BLOCKED`
+- `risk_level`: `NONE`, `LOW`, `MEDIUM`, `HIGH`
+- `provider_type`: `LOCAL`, `MOCK`, `HTTP`, `FALLBACK`
+
+## doodle_asset
+
+涂鸦文件表。
+
+- `storage_path`: 后端本地存储路径
+- `public_url`: 前端回显地址
+- `status`: `UPLOADED`, `BOUND`, `DELETED`
+- `bound_message_id`: 成功绑定的消息 ID
+
+## content_rule
+
+内容审核规则，处理辱骂、色情、暴力、骚扰等不良内容。
+
+- `keyword`: 命中词
+- `category`: 分类
+- `action`: `MARK` 或 `BLOCK`
+- `enabled`: 是否启用
+
+## risk_rule
+
+危机预警规则，处理自伤、自杀等高风险表达。
+
+- `keyword`: 命中词
+- `risk_level`: 风险等级
+- `enabled`: 是否启用
+
+## risk_event
+
+危机事件记录，给管理员后台查看。
+
+- `visitor_id`, `session_id`, `message_id`: 关联上下文
+- `risk_level`: 风险等级
+- `matched_keyword`: 命中词
+- `status`: 处理状态
+
+## support_resource
+
+心理援助资源。
+
+- `title`: 名称
+- `contact`: 联系方式
+- `description`: 描述
+- `enabled`: 是否启用
+
+## admin_user
+
+管理员账号。
+
+- `username`: 账号
+- `password_hash`: SHA-256 密码哈希
+- `display_name`: 展示名
+- `enabled`: 是否启用

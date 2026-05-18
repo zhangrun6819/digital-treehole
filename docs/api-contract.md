@@ -1,0 +1,760 @@
+# 数字树洞接口契约文档
+
+最后更新：`2026-05-18`
+
+这份文档给前端、后端、AI 同学一起看。字段名、枚举值、接口路径全部使用英文；中文只用于说明文字和示例用户内容。
+
+## 1. 全局规则
+
+### 后端基础地址
+
+本机调试：
+
+```text
+http://localhost:8080
+```
+
+局域网联调示例：
+
+```text
+http://<后端电脑局域网IP>:8080
+```
+
+### 身份认证
+
+除下面 2 个接口外，其他接口都需要 token：
+
+```text
+POST /api/v1/visitors/session
+POST /api/v1/admin/auth/login
+```
+
+请求头格式：
+
+```http
+Authorization: Bearer <token>
+```
+
+用户 token 和管理员 token 都放在 `Authorization` 里，后端会根据接口路径判断角色。
+
+### 请求内容类型
+
+JSON 接口：
+
+```http
+Content-Type: application/json
+```
+
+涂鸦上传接口：
+
+```http
+Content-Type: multipart/form-data
+```
+
+### 统一响应格式
+
+所有接口统一返回：
+
+```json
+{
+  "code": 0,
+  "message": "ok",
+  "data": {},
+  "timestamp": "2026-05-18T10:00:00"
+}
+```
+
+字段说明：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `code` | number | `0` 表示成功，非 `0` 表示失败 |
+| `message` | string | 成功时通常为 `ok`，失败时为错误原因 |
+| `data` | object/array/null | 真实业务数据 |
+| `timestamp` | string | 服务端响应时间 |
+
+前端判断成功优先看：
+
+```js
+response.code === 0
+```
+
+### 分页响应格式
+
+分页接口的 `data` 固定为：
+
+```json
+{
+  "records": [],
+  "total": 0,
+  "pageNo": 1,
+  "pageSize": 10
+}
+```
+
+## 2. 枚举值说明
+
+### `companionStyle`
+
+| 值 | 含义 |
+| --- | --- |
+| `GENTLE_ELDER` | 温柔长辈风格 |
+| `PEER` | 同龄朋友风格 |
+| `HUMOROUS` | 轻松幽默风格 |
+
+### `inputType`
+
+| 值 | 含义 |
+| --- | --- |
+| `TEXT` | 文本输入 |
+| `DOODLE` | 涂鸦输入 |
+
+### `emotionTag`
+
+| 值 | 展示文案 | 颜色 |
+| --- | --- | --- |
+| `CALM` | 平静 | `#7EC8E3` |
+| `SAD` | 难过 | `#6C7BFF` |
+| `ANXIOUS` | 焦虑 | `#F6C177` |
+| `ANGRY` | 生气 | `#FF6B6B` |
+| `HOPEFUL` | 有希望 | `#7BD389` |
+
+### `riskLevel`
+
+| 值 | 含义 |
+| --- | --- |
+| `NONE` | 无明显风险 |
+| `LOW` | 轻度风险 |
+| `MEDIUM` | 中度风险 |
+| `HIGH` | 高风险，需要展示心理援助资源 |
+
+### `moderationStatus`
+
+| 值 | 含义 |
+| --- | --- |
+| `PASS` | 内容通过 |
+| `MARKED` | 内容被标记，但不拦截 |
+| `BLOCKED` | 内容被拦截 |
+
+### `providerType`
+
+| 值 | 含义 |
+| --- | --- |
+| `LOCAL` | 后端本地规则生成 |
+| `MOCK` | mock AI 生成 |
+| `HTTP` | 外部 AI 服务生成 |
+| `FALLBACK` | AI 调用失败后的兜底回复 |
+
+## 3. 匿名访客接口
+
+### 3.1 创建匿名会话
+
+创建匿名访客身份。前端首次进入系统时调用一次，把返回的 `token` 存到 `localStorage`。
+
+```http
+POST /api/v1/visitors/session
+```
+
+请求体：无
+
+响应 `data`：
+
+```json
+{
+  "visitorId": 1,
+  "visitorCode": "550e8400-e29b-41d4-a716-446655440000",
+  "token": "jwt-token",
+  "expiresInDays": 7
+}
+```
+
+### 3.2 刷新匿名会话
+
+刷新匿名访客 token。当前 token 剩余时间不足阈值时调用。
+
+```http
+POST /api/v1/visitors/session/refresh
+Authorization: Bearer <visitor-token>
+```
+
+请求体：无
+
+响应 `data`：
+
+```json
+{
+  "visitorId": 1,
+  "visitorCode": "550e8400-e29b-41d4-a716-446655440000",
+  "token": "new-jwt-token",
+  "expiresInDays": 7
+}
+```
+
+## 4. 聊天接口
+
+### 4.1 创建聊天会话
+
+创建一次树洞会话。
+
+```http
+POST /api/v1/chat/sessions
+Authorization: Bearer <visitor-token>
+Content-Type: application/json
+```
+
+请求体：
+
+```json
+{
+  "companionStyle": "PEER",
+  "title": "exam stress"
+}
+```
+
+字段规则：
+
+| 字段 | 是否必填 | 规则 |
+| --- | --- | --- |
+| `companionStyle` | 是 | 见 `companionStyle` 枚举 |
+| `title` | 否 | 最大长度：`120` |
+
+响应 `data`：
+
+```json
+{
+  "id": 1,
+  "companionStyle": "PEER",
+  "title": "exam stress",
+  "latestEmotionTag": null,
+  "latestRiskLevel": "NONE",
+  "status": "ACTIVE",
+  "createdAt": "2026-05-18T10:00:00",
+  "updatedAt": "2026-05-18T10:00:00"
+}
+```
+
+### 4.2 查询聊天会话列表
+
+```http
+GET /api/v1/chat/sessions?pageNo=1&pageSize=10
+Authorization: Bearer <visitor-token>
+```
+
+查询参数规则：
+
+| 参数 | 默认值 | 规则 |
+| --- | --- | --- |
+| `pageNo` | `1` | 最小值：`1` |
+| `pageSize` | `10` | 最小值：`1`，最大值：`50` |
+
+响应 `data`：
+
+```json
+{
+  "records": [
+    {
+      "id": 1,
+      "companionStyle": "PEER",
+      "title": "exam stress",
+      "latestEmotionTag": "ANXIOUS",
+      "latestRiskLevel": "LOW",
+      "status": "ACTIVE",
+      "createdAt": "2026-05-18T10:00:00",
+      "updatedAt": "2026-05-18T10:05:00"
+    }
+  ],
+  "total": 1,
+  "pageNo": 1,
+  "pageSize": 10
+}
+```
+
+### 4.3 查询聊天会话详情
+
+```http
+GET /api/v1/chat/sessions/{sessionId}
+Authorization: Bearer <visitor-token>
+```
+
+响应 `data`：同 `ChatSessionResponse`。
+
+### 4.4 查询消息列表
+
+```http
+GET /api/v1/chat/sessions/{sessionId}/messages?pageNo=1&pageSize=20
+Authorization: Bearer <visitor-token>
+```
+
+查询参数规则：
+
+| 参数 | 默认值 | 规则 |
+| --- | --- | --- |
+| `pageNo` | `1` | 最小值：`1` |
+| `pageSize` | `20` | 最小值：`1`，最大值：`100` |
+
+响应 `data.records[]`：
+
+```json
+{
+  "id": 10,
+  "sessionId": 1,
+  "role": "USER",
+  "inputType": "TEXT",
+  "content": "我最近因为考试很焦虑",
+  "shortNote": null,
+  "emotionTag": "ANXIOUS",
+  "doodleAssetId": null,
+  "moderationStatus": "PASS",
+  "riskLevel": "LOW",
+  "providerType": "LOCAL",
+  "createdAt": "2026-05-18T10:05:00"
+}
+```
+
+### 4.5 发送文本消息
+
+发送文本消息。后端会保存用户消息，做内容审核和危机预警，然后调用 AI 适配层生成助手回复。
+
+```http
+POST /api/v1/chat/sessions/{sessionId}/messages
+Authorization: Bearer <visitor-token>
+Content-Type: application/json
+```
+
+请求体：
+
+```json
+{
+  "inputType": "TEXT",
+  "content": "我最近因为考试很焦虑，但还是想试着说出来"
+}
+```
+
+字段规则：
+
+| 字段 | 是否必填 | 规则 |
+| --- | --- | --- |
+| `inputType` | 是 | 固定传：`TEXT` |
+| `content` | 是 | 最大长度：`2000` |
+| `shortNote` | 否 | 文本消息不需要传 |
+| `emotionTag` | 否 | 文本消息不需要传，由 AI 推断 |
+| `doodleAssetId` | 否 | 文本消息不需要传 |
+
+响应 `data`：
+
+```json
+{
+  "userMessage": {
+    "id": 10,
+    "sessionId": 1,
+    "role": "USER",
+    "inputType": "TEXT",
+    "content": "我最近因为考试很焦虑，但还是想试着说出来",
+    "shortNote": null,
+    "emotionTag": "ANXIOUS",
+    "doodleAssetId": null,
+    "moderationStatus": "PASS",
+    "riskLevel": "LOW",
+    "providerType": "LOCAL",
+    "createdAt": "2026-05-18T10:05:00"
+  },
+  "assistantMessage": {
+    "id": 11,
+    "sessionId": 1,
+    "role": "ASSISTANT",
+    "inputType": "TEXT",
+    "content": "我听到你了...\n\n转念一想...\n\n如果愿意的话...",
+    "shortNote": null,
+    "emotionTag": "ANXIOUS",
+    "doodleAssetId": null,
+    "moderationStatus": "PASS",
+    "riskLevel": "NONE",
+    "providerType": "MOCK",
+    "createdAt": "2026-05-18T10:05:01"
+  },
+  "reframeText": "转念一想，愿意说出来已经是你在照顾自己。",
+  "followUpQuestion": "如果愿意的话，可以再说一点最近最让你紧绷的事情吗？",
+  "riskLevel": "LOW",
+  "supportResources": []
+}
+```
+
+### 4.6 发送涂鸦消息
+
+涂鸦消息分两步：先上传 PNG，再把 `doodleAssetId` 作为消息提交。
+
+```http
+POST /api/v1/chat/sessions/{sessionId}/messages
+Authorization: Bearer <visitor-token>
+Content-Type: application/json
+```
+
+请求体：
+
+```json
+{
+  "inputType": "DOODLE",
+  "doodleAssetId": 3,
+  "emotionTag": "ANXIOUS",
+  "shortNote": "这张图像一团乱线，感觉最近脑子很乱"
+}
+```
+
+字段规则：
+
+| 字段 | 是否必填 | 规则 |
+| --- | --- | --- |
+| `inputType` | 是 | 固定传：`DOODLE` |
+| `doodleAssetId` | 是 | 必须是已上传且未绑定消息的涂鸦资源 |
+| `emotionTag` | 是 | 见 `emotionTag` 枚举 |
+| `shortNote` | 否 | 最大长度：`500` |
+| `content` | 否 | 涂鸦消息不需要传 |
+
+## 5. 涂鸦接口
+
+### 5.1 上传涂鸦
+
+```http
+POST /api/v1/doodles
+Authorization: Bearer <visitor-token>
+Content-Type: multipart/form-data
+```
+
+表单字段：
+
+| 字段 | 是否必填 | 规则 |
+| --- | --- | --- |
+| `file` | 是 | 仅支持 PNG，最大 `2MB`，最大分辨率 `1024x1024` |
+
+响应 `data`：
+
+```json
+{
+  "doodleAssetId": 3,
+  "publicUrl": "http://localhost:8080/assets/doodles/visitor-1/xxx.png",
+  "fileSize": 12345,
+  "width": 800,
+  "height": 800,
+  "status": "UPLOADED"
+}
+```
+
+生命周期：
+
+| 状态 | 含义 |
+| --- | --- |
+| `UPLOADED` | 已上传，尚未绑定消息 |
+| `BOUND` | 已绑定到一条聊天消息 |
+| `DELETED` | 已清理 |
+
+未绑定的涂鸦资源超过 `30` 分钟会被清理。
+
+## 6. 情感星空图接口
+
+### 6.1 获取情感星空图
+
+```http
+GET /api/v1/chat/stats/star-map?days=7
+Authorization: Bearer <visitor-token>
+```
+
+查询参数规则：
+
+| 参数 | 默认值 | 规则 |
+| --- | --- | --- |
+| `days` | `7` | 最小值：`1`，最大值：`30` |
+
+响应 `data`：
+
+```json
+{
+  "periodStart": "2026-05-12",
+  "periodEnd": "2026-05-18",
+  "dominantEmotion": "ANXIOUS",
+  "summaryText": "最近 7 天里，焦虑是出现最多的情绪。可以先把任务拆小，让自己从一个可完成的小步骤开始。",
+  "points": [
+    {
+      "x": 23.4,
+      "y": 80.1,
+      "radius": 4,
+      "color": "#F6C177",
+      "emotionTag": "ANXIOUS",
+      "sourceDate": "2026-05-18",
+      "intensity": 0.67,
+      "label": "焦虑"
+    }
+  ]
+}
+```
+
+前端渲染说明：
+
+| 字段 | 含义 |
+| --- | --- |
+| `x` / `y` | 星点坐标，范围 `0-100` |
+| `radius` | 星点半径 |
+| `color` | 星点颜色 |
+| `intensity` | 当前情绪在周期内的占比 |
+| `dominantEmotion` | 周期内主导情绪 |
+| `summaryText` | 页面摘要文案 |
+
+## 7. 管理员接口
+
+管理员接口全部使用 admin token。
+
+### 7.1 管理员登录
+
+```http
+POST /api/v1/admin/auth/login
+Content-Type: application/json
+```
+
+请求体：
+
+```json
+{
+  "username": "admin",
+  "password": "admin123456"
+}
+```
+
+响应 `data`：
+
+```json
+{
+  "adminId": 1,
+  "username": "admin",
+  "displayName": "Demo Admin",
+  "token": "admin-jwt-token",
+  "expiresInDays": 7
+}
+```
+
+### 7.2 查询风险事件列表
+
+```http
+GET /api/v1/admin/risk-events
+Authorization: Bearer <admin-token>
+```
+
+响应 `data[]`：
+
+```json
+{
+  "id": 1,
+  "visitorId": 1,
+  "sessionId": 1,
+  "messageId": 10,
+  "riskLevel": "HIGH",
+  "matchedKeyword": "不想活",
+  "status": "OPEN",
+  "createdAt": "2026-05-18T10:05:00",
+  "updatedAt": "2026-05-18T10:05:00"
+}
+```
+
+### 7.3 内容审核规则
+
+```http
+GET /api/v1/admin/content-rules
+POST /api/v1/admin/content-rules
+PUT /api/v1/admin/content-rules/{id}
+Authorization: Bearer <admin-token>
+```
+
+创建 / 更新请求体：
+
+```json
+{
+  "keyword": "bad-word",
+  "category": "INSULT",
+  "action": "MARK",
+  "enabled": true
+}
+```
+
+字段规则：
+
+| 字段 | 是否必填 | 规则 |
+| --- | --- | --- |
+| `keyword` | 是 | 内容审核关键词 |
+| `category` | 是 | 分类名称，例如 `INSULT`, `VIOLENCE`, `SEXUAL`, `HARASSMENT` |
+| `action` | 是 | `MARK` 或 `BLOCK` |
+| `enabled` | 是 | `true` / `false` |
+
+### 7.4 危机预警规则
+
+```http
+GET /api/v1/admin/risk-rules
+POST /api/v1/admin/risk-rules
+PUT /api/v1/admin/risk-rules/{id}
+Authorization: Bearer <admin-token>
+```
+
+创建 / 更新请求体：
+
+```json
+{
+  "keyword": "不想活",
+  "riskLevel": "HIGH",
+  "enabled": true
+}
+```
+
+字段规则：
+
+| 字段 | 是否必填 | 规则 |
+| --- | --- | --- |
+| `keyword` | 是 | 危机预警关键词 |
+| `riskLevel` | 是 | `NONE`, `LOW`, `MEDIUM`, `HIGH` |
+| `enabled` | 是 | `true` / `false` |
+
+### 7.5 心理援助资源
+
+```http
+GET /api/v1/admin/support-resources
+POST /api/v1/admin/support-resources
+PUT /api/v1/admin/support-resources/{id}
+Authorization: Bearer <admin-token>
+```
+
+创建 / 更新请求体：
+
+```json
+{
+  "title": "School Counseling Center",
+  "contact": "Room A101 / 010-00000000",
+  "description": "Available on weekdays from 09:00 to 17:00.",
+  "enabled": true
+}
+```
+
+字段规则：
+
+| 字段 | 是否必填 | 规则 |
+| --- | --- | --- |
+| `title` | 是 | 资源标题 |
+| `contact` | 是 | 电话、地点、链接或其他联系方式 |
+| `description` | 否 | 最大长度：`500` |
+| `enabled` | 是 | `true` / `false` |
+
+## 8. AI / RAG 对接契约
+
+这一段是给 AI 同学看的。当前后端已经有 `AiCompanionClient.chat(request)` 适配层。正常接 RAG 时，不需要 AI 服务直接查后端数据库；后端会在每次用户发消息时，把 AI 需要的上下文一起发过去。
+
+### 8.1 后端发送给 AI 的数据
+
+后端会发送：
+
+```json
+{
+  "sessionId": 1,
+  "companionStyle": "PEER",
+  "historyMessages": [
+    {
+      "role": "USER",
+      "content": "我最近因为考试很焦虑",
+      "emotionTag": "ANXIOUS"
+    },
+    {
+      "role": "ASSISTANT",
+      "content": "我听到你了...",
+      "emotionTag": "ANXIOUS"
+    }
+  ],
+  "currentInput": {
+    "inputType": "TEXT",
+    "content": "我今天还是很紧张",
+    "emotionTag": null,
+    "shortNote": null,
+    "doodleUrl": null
+  }
+}
+```
+
+涂鸦输入示例：
+
+```json
+{
+  "sessionId": 1,
+  "companionStyle": "PEER",
+  "historyMessages": [],
+  "currentInput": {
+    "inputType": "DOODLE",
+    "content": null,
+    "emotionTag": "ANXIOUS",
+    "shortNote": "这张图像一团乱线，感觉最近脑子很乱",
+    "doodleUrl": "http://localhost:8080/assets/doodles/visitor-1/xxx.png"
+  }
+}
+```
+
+重要规则：
+
+| 规则 | 说明 |
+| --- | --- |
+| History size | 后端最多发送最近 `6` 条历史消息 |
+| Privacy | 后端不会发送手机号、姓名、学号等真实身份 |
+| RAG source | AI 服务自己维护知识库并检索，如心理科普、校园资源、安抚话术 |
+| Conversation source | 会话上下文由后端随请求发送，AI 不需要直接读取后端数据库 |
+| Doodle source | 一期不要求 AI 看懂图片，优先使用 `emotionTag + shortNote` |
+
+### 8.2 AI 返回给后端的数据
+
+AI 服务必须返回下面结构：
+
+```json
+{
+  "comfortText": "我听见你说今天还是很紧张，这种反复出现的焦虑确实会让人很累。",
+  "reframeText": "转念一想，你能继续说出来，说明你已经在尝试把压力从心里拿出来一点。",
+  "emotionTag": "ANXIOUS",
+  "riskHint": "LOW",
+  "followUpQuestion": "如果只选一件最让你紧张的事，会是哪一件？",
+  "providerType": "HTTP"
+}
+```
+
+字段规则：
+
+| 字段 | 是否必填 | 规则 |
+| --- | --- | --- |
+| `comfortText` | 是 | 共情回复，建议 `80-180` 字 |
+| `reframeText` | 是 | 转念建议，建议 `40-120` 字 |
+| `emotionTag` | 是 | 必须是 `CALM`, `SAD`, `ANXIOUS`, `ANGRY`, `HOPEFUL` 之一 |
+| `riskHint` | 是 | 必须是 `NONE`, `LOW`, `MEDIUM`, `HIGH` 之一 |
+| `followUpQuestion` | 是 | 开放式追问，建议 `20-60` 字 |
+| `providerType` | 否 | 后端会记录来源；外部服务可返回 `HTTP` |
+
+### 8.3 RAG 职责边界
+
+| 负责人 | 职责 |
+| --- | --- |
+| Backend | 保存用户消息、发送最近上下文、保存 AI 回复、做本地内容审核和危机预警 |
+| AI/RAG service | 维护知识库、检索相关材料、生成结构化回复 |
+| Frontend | 展示聊天、涂鸦、星空图、心理援助资源 |
+
+第一轮联调建议 AI 同学先做一个 HTTP mock 服务，只要能接收上述 request、返回上述 response，就可以和后端联调。RAG 检索质量可以后续再提升。
+
+## 9. 前端演示流程
+
+前端主链路按这个顺序接：
+
+```text
+1. POST /api/v1/visitors/session
+2. Store data.token in localStorage
+3. POST /api/v1/chat/sessions
+4. POST /api/v1/chat/sessions/{sessionId}/messages
+5. GET /api/v1/chat/sessions/{sessionId}/messages
+6. GET /api/v1/chat/stats/star-map?days=7
+```
+
+管理员主链路按这个顺序接：
+
+```text
+1. POST /api/v1/admin/auth/login
+2. Store data.token as admin token
+3. GET /api/v1/admin/risk-events
+4. GET /api/v1/admin/content-rules
+5. GET /api/v1/admin/risk-rules
+6. GET /api/v1/admin/support-resources
+```

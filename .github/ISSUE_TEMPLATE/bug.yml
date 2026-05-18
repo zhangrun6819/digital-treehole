@@ -1,0 +1,36 @@
+name: Bug 反馈
+description: 记录联调或演示中发现的问题
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: bug
+    attributes:
+      label: 问题描述
+      description: 说清楚哪里不对
+      placeholder: 例如：发送消息后 500，前端拿不到 assistantMessage
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 按顺序写
+      placeholder: |
+        1. 创建匿名会话
+        2. 创建聊天会话
+        3. 发送文本消息
+        4. 返回 500
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      placeholder: 例如：应该返回 userMessage 和 assistantMessage
+  - type: textarea
+    id: env
+    attributes:
+      label: 环境信息
+      placeholder: 例如：本地联调，后端 8080，前端 Vite dev server

@@ -1,0 +1,44 @@
+name: 任务卡
+description: 新功能、联调项、文档项都可以用这张卡
+title: "[Task] "
+labels:
+  - task
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目标
+      description: 这张任务卡最终要完成什么
+      placeholder: 例如：完成匿名会话接口并给前端联调
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 范围
+      description: 这次具体改哪些东西
+      placeholder: 例如：Controller、Service、Swagger 文档
+  - type: textarea
+    id: done
+    attributes:
+      label: 完成标准
+      description: 看到什么结果算做完
+      placeholder: 例如：Swagger 可调通，前端能拿到 token
+  - type: textarea
+    id: dependency
+    attributes:
+      label: 依赖与阻塞
+      description: 有没有依赖其他同学，或者依赖什么接口/设计
+      placeholder: 例如：等前端确认字段名，或等 AI 同学提供地址
+  - type: dropdown
+    id: owner
+    attributes:
+      label: 负责人
+      options:
+        - 后端
+        - 前端
+        - AI
+        - 联调
+        - 文档
+    validations:
+      required: true
