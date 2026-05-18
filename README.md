@@ -1,14 +1,14 @@
 # Digital Treehole
 
-数字树洞全栈项目（校赛版）。后端：Java 21 + Spring Boot 3 + MySQL。前端：Vue 3 + Element Plus（CDN 版，无需 Node）。
+数字树洞后端项目（校赛版）。后端：Java 21 + Spring Boot 3 + MySQL。正式前端由前端同学单独维护，本仓库提供接口、数据模型和协作文档。
 
-支持：匿名进入、文本/涂鸦多轮聊天、内容审核、危机预警、情感星空图、管理后台。
+支持：匿名进入、文本/涂鸦多轮聊天、内容审核、危机预警、情感星空图数据、管理员接口。
 
 ## 你先看这 8 个文件
 
 ```text
 docs/beginner-guide.md
-docs/frontend-handoff.md
+docs/前端对接.md
 docs/learning-map.md
 docs/team-collaboration.md
 docs/figma-design-brief.md
@@ -21,7 +21,7 @@ docs/team-copy-message.md
 
 ```text
 beginner-guide.md       给你自己看的小白上手指南
-frontend-handoff.md     给前端同学看的接口交接文档
+前端对接.md             给前端同学看的接口交接文档
 learning-map.md         你学后端时的阅读顺序
 team-collaboration.md   给你们 3 个人一起用的协作说明
 figma-design-brief.md   给前端 / 设计同学的 Figma 设计骨架
@@ -30,9 +30,7 @@ ai-rag-handoff.md       给 AI 同学看的 RAG 对接说明
 team-copy-message.md    可以直接发到三人小群的消息
 ```
 
-## 快速启动（两步跑完整项目）
-
-### 第一步：启动后端
+## 快速启动后端
 
 ```powershell
 cd path\to\digital-treehole
@@ -42,19 +40,7 @@ cd path\to\digital-treehole
 
 后端起来后：`http://localhost:8080/swagger-ui.html`
 
-### 第二步：启动前端（新开一个 PowerShell 窗口）
-
-```powershell
-cd path\to\digital-treehole
-.\scripts\run-frontend.ps1                          # 默认端口 3000，对接本机后端
-.\scripts\run-frontend.ps1 -Port 3000 -ApiUrl "http://10.x.x.x:8080"  # 局域网模式
-```
-
-脚本会自动打开浏览器：
-- 用户端：`http://localhost:3000/index.html`
-- 管理后台：`http://localhost:3000/admin.html`（账号 admin / admin123456）
-
-前端是纯 HTML + CDN 方案，**不需要 Node.js，双击脚本即可**。
+前端同学对接时看：`docs/前端对接.md` 和 `docs/api-contract.md`。
 
 ---
 
@@ -159,17 +145,9 @@ src/main/java/com/compe/treehole/model        数据模型和枚举
 src/main/java/com/compe/treehole/mapper       数据库操作
 src/main/java/com/compe/treehole/dto          前后端传输对象
 src/main/resources/db/migration               数据库建表和演示数据
-frontend-cdn/                                前端（Vue3 CDN版，无需Node）
-  index.html                                 用户端入口
-  admin.html                                 管理后台入口
-  css/app.css                                全局样式（深色星空主题）
-  js/api.js                                  统一接口封装
-  js/pages/                                  用户端页面
-  js/admin/                                  管理端页面
 docs/                                        文档
 scripts/                                     运行脚本
   run-dev.ps1                                启动后端
-  run-frontend.ps1                           启动前端（纯PS，无需Node）
   run-test.ps1                               跑测试
   show-lan-ip.ps1                            查看局域网IP
 ```
