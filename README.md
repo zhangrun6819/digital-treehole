@@ -1,33 +1,43 @@
-# Digital Treehole
+# 数字树洞项目说明
 
-数字树洞后端项目（校赛版）。后端：Java 21 + Spring Boot 3 + MySQL。正式前端由前端同学单独维护，本仓库提供接口、数据模型和协作文档。
+数字树洞后端项目（校赛版）。后端：Java 21 + Spring Boot 3 + MySQL。正式前端由前端同学单独维护，本仓库提供后端接口、数据模型和协作文档。
 
 支持：匿名进入、文本/涂鸦多轮聊天、内容审核、危机预警、情感星空图数据、管理员接口。
 
-## 你先看这 8 个文件
+## 你先看这些文档
+
+如果不知道先看哪一份，先打开：
 
 ```text
-docs/beginner-guide.md
+docs/文档目录.md
+```
+
+常用文档如下：
+
+```text
+docs/文档目录.md
+docs/小白上手指南.md
 docs/前端对接.md
-docs/learning-map.md
-docs/team-collaboration.md
-docs/figma-design-brief.md
-docs/github-quick-start.md
-docs/ai-rag-handoff.md
-docs/team-copy-message.md
+docs/后端学习路线.md
+docs/团队协作说明.md
+docs/Figma设计交接稿.md
+docs/GitHub首次发布说明.md
+docs/AI-RAG对接说明.md
+docs/发给三人小群的消息.md
 ```
 
 作用分别是：
 
 ```text
-beginner-guide.md       给你自己看的小白上手指南
+文档目录.md             告诉你每份文档给谁看、什么时候看
+小白上手指南.md         给你自己看的项目入门说明
 前端对接.md             给前端同学看的接口交接文档
-learning-map.md         你学后端时的阅读顺序
-team-collaboration.md   给你们 3 个人一起用的协作说明
-figma-design-brief.md   给前端 / 设计同学的 Figma 设计骨架
-github-quick-start.md   第一次把项目发到 GitHub 的操作说明
-ai-rag-handoff.md       给 AI 同学看的 RAG 对接说明
-team-copy-message.md    可以直接发到三人小群的消息
+后端学习路线.md         你学后端时的阅读顺序
+团队协作说明.md         给你们 3 个人一起用的协作说明
+Figma设计交接稿.md      给前端 / 设计同学的页面设计骨架
+GitHub首次发布说明.md   第一次把项目发到 GitHub 的操作说明
+AI-RAG对接说明.md       给 AI 同学看的 RAG 对接说明
+发给三人小群的消息.md   可以直接发到三人小群的消息
 ```
 
 ## 快速启动后端
@@ -40,7 +50,7 @@ cd path\to\digital-treehole
 
 后端起来后：`http://localhost:8080/swagger-ui.html`
 
-前端同学对接时看：`docs/前端对接.md` 和 `docs/api-contract.md`。
+前端同学对接时看：`docs/前端对接.md` 和 `docs/接口契约文档.md`。
 
 ---
 
@@ -123,17 +133,17 @@ GET  /api/v1/admin/risk-events
 完整接口说明看：
 
 ```text
-docs/api-contract.md
+docs/接口契约文档.md
 ```
 
 如果你要开始和队友协作，再看：
 
 ```text
-docs/team-collaboration.md
-docs/figma-design-brief.md
-docs/github-quick-start.md
-docs/ai-rag-handoff.md
-docs/team-copy-message.md
+docs/团队协作说明.md
+docs/Figma设计交接稿.md
+docs/GitHub首次发布说明.md
+docs/AI-RAG对接说明.md
+docs/发给三人小群的消息.md
 ```
 
 ## 项目结构

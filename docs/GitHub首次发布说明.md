@@ -91,7 +91,7 @@ git push
 分支命名规则看：
 
 ```text
-docs/team-collaboration.md
+docs/团队协作说明.md
 ```
 
 ## 7. 最容易出错的点

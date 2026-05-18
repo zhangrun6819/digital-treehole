@@ -1,12 +1,12 @@
-# AI / RAG Handoff
+# AI / RAG 对接说明
 
-Last updated: `2026-05-18`
+最后更新：`2026-05-18`
 
 这份文档专门给 AI 同学看。AI/RAG 服务不需要直接读取后端数据库，后端会在用户每次发消息时，把当前输入和最近上下文一起发给 AI 服务。
 
 ## 1. 现在怎么分工
 
-| Module | Owner | Responsibility |
+| 模块 | 负责人 | 职责 |
 | --- | --- | --- |
 | Backend | 后端 | 保存会话、保存消息、发送上下文给 AI、保存 AI 回复、做内容审核和危机预警 |
 | AI/RAG | AI 同学 | 接收后端请求、检索知识库、生成结构化回复 |
@@ -58,7 +58,7 @@ AI 服务不用直接查这些后端数据：
 
 字段说明：
 
-| Field | Meaning |
+| 字段 | 含义 |
 | --- | --- |
 | `sessionId` | 当前会话 ID，用于日志和追踪 |
 | `companionStyle` | 陪伴风格：`GENTLE_ELDER`, `PEER`, `HUMOROUS` |
@@ -89,14 +89,14 @@ AI 服务不用直接查这些后端数据：
 
 字段要求：
 
-| Field | Required | Rule |
+| 字段 | 是否必填 | 规则 |
 | --- | --- | --- |
-| `comfortText` | yes | 共情回复，建议 `80-180` 字 |
-| `reframeText` | yes | 转念建议，建议 `40-120` 字 |
-| `emotionTag` | yes | `CALM`, `SAD`, `ANXIOUS`, `ANGRY`, `HOPEFUL` |
-| `riskHint` | yes | `NONE`, `LOW`, `MEDIUM`, `HIGH` |
-| `followUpQuestion` | yes | 开放式追问，建议 `20-60` 字 |
-| `providerType` | no | 可以固定返回 `HTTP` |
+| `comfortText` | 是 | 共情回复，建议 `80-180` 字 |
+| `reframeText` | 是 | 转念建议，建议 `40-120` 字 |
+| `emotionTag` | 是 | `CALM`, `SAD`, `ANXIOUS`, `ANGRY`, `HOPEFUL` |
+| `riskHint` | 是 | `NONE`, `LOW`, `MEDIUM`, `HIGH` |
+| `followUpQuestion` | 是 | 开放式追问，建议 `20-60` 字 |
+| `providerType` | 否 | 可以固定返回 `HTTP` |
 
 ## 5. RAG 应该检索什么
 
@@ -124,9 +124,9 @@ POST /ai/v1/treehole/chat
 Content-Type: application/json
 ```
 
-Request body: 使用第 3 节的结构。
+请求体：使用第 3 节的结构。
 
-Response body: 使用第 4 节的结构。
+响应体：使用第 4 节的结构。
 
 第一轮联调先不用把 RAG 做得很复杂，只要服务能稳定接收请求并返回固定 JSON，就能先接上后端。后端后续只需要把 `AiCompanionClient` 切到这个 HTTP 服务。
 
