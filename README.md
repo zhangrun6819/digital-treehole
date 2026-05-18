@@ -16,6 +16,8 @@ docs/文档目录.md
 
 ```text
 docs/文档目录.md
+docs/比赛收尾作战计划.md
+docs/联调操作手册.md
 docs/小白上手指南.md
 docs/前端对接.md
 docs/后端学习路线.md
@@ -30,6 +32,8 @@ docs/发给三人小群的消息.md
 
 ```text
 文档目录.md             告诉你每份文档给谁看、什么时候看
+比赛收尾作战计划.md     列清剩余任务、优先级、分工和答辩前检查
+联调操作手册.md         前后端和 AI 同学按步骤联调时照着做
 小白上手指南.md         给你自己看的项目入门说明
 前端对接.md             给前端同学看的接口交接文档
 后端学习路线.md         你学后端时的阅读顺序
@@ -140,6 +144,8 @@ docs/接口契约文档.md
 
 ```text
 docs/团队协作说明.md
+docs/比赛收尾作战计划.md
+docs/联调操作手册.md
 docs/Figma设计交接稿.md
 docs/GitHub首次发布说明.md
 docs/AI-RAG对接说明.md
